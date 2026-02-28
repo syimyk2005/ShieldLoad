@@ -27,12 +27,12 @@ public class RateLimitService {
         this.props = props;
     }
 
-    public Mono<Boolean> isAllowed(String key) {
+    public Mono<Boolean> isAllowed(String key, int limit, int window) {
         return redisTemplate
                 .execute(script,
                         List.of(key),
-                        String.valueOf(props.getWindow()),
-                        String.valueOf(props.getLimit()))
+                        String.valueOf(window),
+                        String.valueOf(limit))
                 .next()
                 .map(result -> result == 1);
     }

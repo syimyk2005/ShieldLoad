@@ -1,7 +1,14 @@
 rate:
   limit:
-    window: 10
-    limit: 2
+    window: 60
+    limit: 100000
+    endpoints:
+      "[api/ping]":
+        limit: 5
+        window: 60
+      "[api/reports]":
+        limit: 2
+        window: 120
   redis:
     host: ${SPRING_REDIS_HOST:localhost}
     port: ${SPRING_REDIS_PORT:6379}
