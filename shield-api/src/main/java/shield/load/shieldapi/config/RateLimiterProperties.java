@@ -15,8 +15,6 @@ public class RateLimiterProperties {
 
     public EndpointConfig getConfigForPath(String path) {
         String normalized = path.replaceAll("^/", "");
-        System.out.println("Looking for path: '" + normalized + "'");
-        System.out.println("Available endpoints: " + endpoints.keySet());
         return endpoints.get(normalized);
     }
 

@@ -34,7 +34,6 @@ public class RateLimitFilter implements WebFilter, Ordered {
         String path = exchange.getRequest().getPath().value();
         RateLimiterProperties.EndpointConfig config = props.getConfigForPath(path);
 
-        // нет конфига — пропускаем, Redis не трогаем
         if (config == null) {
             return chain.filter(exchange);
         }

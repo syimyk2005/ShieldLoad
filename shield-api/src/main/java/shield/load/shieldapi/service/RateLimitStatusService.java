@@ -1,5 +1,6 @@
 package shield.load.shieldapi.service;
 
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Component;
@@ -21,16 +22,6 @@ public class RateLimitStatusService {
         this.properties = properties;
     }
 
-    private static final String STATUS_SCRIPT =
-            "local key = KEYS[1]\n" +
-                    "local window = tonumber(ARGV[1])\n" +
-                    "local limit = tonumber(ARGV[2])\n" +
-                    "local current = tonumber(redis.call('GET', key) or '0')\n" +
-                    "local ttl = redis.call('TTL', key)\n" +
-                    "local remaining = math.max(limit - current, 0)\n" +
-                    "if ttl < 0 then ttl = window end\n" +
-                    "return {current, remaining, ttl}";
-
     public Mono<Map<String, Object>> getStatus(String key) {
         String path = key.substring(key.indexOf("/", key.indexOf("rl:"))).replaceAll("^/", "");
         RateLimiterProperties.EndpointConfig config = properties.getConfigForPath(path);
@@ -38,7 +29,7 @@ public class RateLimitStatusService {
         int window = config != null ? config.getWindow() : properties.getWindow();
 
         DefaultRedisScript<List> script = new DefaultRedisScript<>();
-        script.setScriptText(STATUS_SCRIPT);
+        script.setLocation(new ClassPathResource("lua/status_script.lua"));
         script.setResultType(List.class);
 
         return redisTemplate.execute(script, List.of(key),
