@@ -25,7 +25,7 @@ public class RateLimitStatusService {
     public Mono<Map<String, Object>> getStatus(String key) {
         String path = key.substring(key.indexOf("/", key.indexOf("rl:"))).replaceAll("^/", "");
         RateLimiterProperties.EndpointConfig config = properties.getConfigForPath(path);
-        int limit  = config != null ? config.getLimit()  : properties.getLimit();
+        int limit = config != null ? config.getLimit() : properties.getLimit();
         int window = config != null ? config.getWindow() : properties.getWindow();
 
         DefaultRedisScript<List> script = new DefaultRedisScript<>();
@@ -50,9 +50,8 @@ public class RateLimitStatusService {
 
     public Mono<Map<String, Object>> getAllStatus(String identity) {
         String pattern = "rl:" + identity + ":*";
-
         return redisTemplate.keys(pattern)
-                .flatMap(key -> getStatus(key))
+                .flatMap(this::getStatus)
                 .collectMap(
                         m -> (String) m.get("endpoint"),
                         m -> m

@@ -1,12 +1,11 @@
 package shield.load.shieldapi.ratelimit;
 
-import org.springframework.stereotype.Component;
-
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 import shield.load.shieldapi.config.RateLimiterProperties;
 import shield.load.shieldapi.service.RateLimitService;
