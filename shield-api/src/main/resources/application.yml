@@ -3,7 +3,7 @@ rate:
     window: 60
     limit: 100000
     endpoints:
-      "[api/ping]":
+      "[test]":
         limit: 5
         window: 60
       "[api/reports]":
@@ -18,4 +18,9 @@ rate:
 #    bootstrap-servers: localhost:9092
 #    producer:
 #      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+spring:
+  application:
+    name: shield-load
+server:
+  port: 8081
 #      value-serializer: org.apache.kafka.common.serialization.StringSerializer

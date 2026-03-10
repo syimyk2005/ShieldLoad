@@ -1,8 +1,7 @@
 package shield.load.shieldapi.router;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import shield.load.shieldapi.config.RateLimiterProperties;
 import shield.load.shieldapi.dto.DecisionRequest;
@@ -20,19 +19,23 @@ public class DecisionController {
         this.props = props;
     }
 
-    @PostMapping("/decision")
-    public Mono<DecisionResponse> decide(@RequestBody DecisionRequest request) {
-        RateLimiterProperties.EndpointConfig config = props.getConfigForPath(request.endpoint());
+    @GetMapping("/decision")
+    public Mono<ResponseEntity<DecisionResponse>> decide(
+            @RequestHeader("X-Client-IP") String clientId,
+            @RequestHeader("X-Endpoint") String endpoint
+    ) {
+        RateLimiterProperties.EndpointConfig config = props.getConfigForPath(endpoint);
 
         if (config == null) {
-            return Mono.just(new DecisionResponse("ALLOW", "No limit configured"));
+            return Mono.just(ResponseEntity.ok(new DecisionResponse("ALLOW", "No limit configured")));
         }
 
-        return rateLimitService.decide(
-            request.clientId(),
-            request.endpoint(),
-            config.getLimit(),
-            config.getWindow()
-        );
+        return rateLimitService.decide(clientId, endpoint, config.getLimit(), config.getWindow())
+                .map(response -> switch (response.decision()) {
+                    case "ALLOW" -> ResponseEntity.ok(response);
+                    case "LIMIT" -> ResponseEntity.<DecisionResponse>status(403).body(response);
+                    case "BLOCK" -> ResponseEntity.<DecisionResponse>status(403).body(response);
+                    default -> ResponseEntity.ok(response);
+                });
     }
 }
