@@ -4,7 +4,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import shield.load.shieldapi.config.RateLimiterProperties;
-import shield.load.shieldapi.dto.DecisionRequest;
 import shield.load.shieldapi.dto.DecisionResponse;
 import shield.load.shieldapi.service.RateLimitService;
 
@@ -33,8 +32,8 @@ public class DecisionController {
         return rateLimitService.decide(clientId, endpoint, config.getLimit(), config.getWindow())
                 .map(response -> switch (response.decision()) {
                     case "ALLOW" -> ResponseEntity.ok(response);
-                    case "LIMIT" -> ResponseEntity.<DecisionResponse>status(403).body(response);
-                    case "BLOCK" -> ResponseEntity.<DecisionResponse>status(403).body(response);
+                    case "LIMIT" -> ResponseEntity.status(403).body(response);
+                    case "BLOCK" -> ResponseEntity.status(403).body(response);
                     default -> ResponseEntity.ok(response);
                 });
     }
