@@ -1,4 +1,4 @@
-package org.example.testapi;
+package test.apitest;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
